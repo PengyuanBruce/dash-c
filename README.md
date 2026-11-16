@@ -1,8 +1,8 @@
-# 大屏C · 六人作战看板
+# 野狼队业绩看板（大屏C）
 
 线上地址：https://pengyuanbruce.github.io/dash-c/
 
-六个人（汤子豪、漆螯童、李怡萍、邓晓东、牛群、程碧瑶）一人一张卡，每张卡显示：
+野狼队六个人（汤子豪、漆螯童、李怡萍、邓晓东、牛群、程碧瑶）一人一张卡，每张卡显示：
 
 | 指标 | 内容 | 进度条 |
 |---|---|---|
@@ -30,6 +30,7 @@ python gen_c.py     # 读 A 的 data_cur.json，重写 index.html + c_data.json
 python push_c.py    # 只推有变化的文件到 GitHub Pages
 ```
 
+- `logo-256.png` / `logo.png` 队徽（页头与 favicon，内联进 index.html）
 - `template_c.html` 管样式与布局（深蓝科技风，桌面 3×2 / 平板 2 列 / 手机 1 列）
 - `gen_c.py` 管数据装配（`--src` 可指定别的 data_cur.json）
 - `push_c.py` 管发布（按 git blob sha 比对，内容没变不推）
