@@ -196,7 +196,7 @@ function barT(pct, timePct, tone) {
     { k: "六人合计 · 当月实收", v: WAN(s.month_val), u: "万", p: PCT(s.month_pct) },
     { k: "六人合计 · 当季实收", v: WAN(s.quarter_val), u: "万", p: PCT(s.quarter_pct) },
     { k: "六人合计 · 优爆品", v: N(s.hit, 0), u: "个", p: PCT(s.hit_pct) },
-    { k: "六人合计 · 3万客户", v: N(s.active, 0), u: "家", p: "" },
+    { k: "六人合计 · 3万客户", v: N(s.active, 0), u: "家", p: (s.active_target ? PCT(s.active_pct) + "（同比 " + N(s.active_target, 0) + "）" : "") },
     { k: "六人合计 · 上周优爆品增量", v: SIGN(s.week_add), u: "", p: "" },
   ];
   document.getElementById("strip").innerHTML = items.map((it) => `
@@ -241,9 +241,9 @@ function barT(pct, timePct, tone) {
         </div>
         <div class="m">
           <div class="lb">3万客户数</div>
-          <div class="val">${N(p.active, 0)}<small> 家</small></div>
-          <div class="pct na">${PCT(p.active_share)}</div>
-          ${bar(p.active_share, "mint")}
+          <div class="val">${N(p.active, 0)}<small> 家 / 同比 ${N(p.active_target, 0)} 家</small></div>
+          <div class="pct ${p.active_pct !== null && p.active_pct >= 100 ? "up" : (p.active_pct !== null && p.active_pct >= 60 ? "" : "down")}">${PCT(p.active_pct)}</div>
+          ${bar(p.active_pct, p.active_pct !== null && p.active_pct >= 100 ? "mint" : (p.active_pct !== null && p.active_pct >= 60 ? "gold" : "red"))}
         </div>
       </div>
       <div class="week">
@@ -264,7 +264,7 @@ function barT(pct, timePct, tone) {
   document.getElementById("foot").innerHTML = `
     <div><b>口径：</b>实收 = 平台「业务目标 ▸ 信保」逐人月度/季度信保实收（USD，原文未摊平）；目标取当期激励看板（FY27-11），未下发则显示 --，不拿上月值兜底。</div>
     <div><b>优爆品：</b>完成 = 优品3.0 拍档销售表当前优爆品数（数据日 ${m.goods_ds}）；目标 = 当季累计目标。<b>上周增量</b> = ${m.week_end} 的优爆品数 − ${m.week_base} 的优爆品数，即上周一至周五净增，缺任一端显示 --。</div>
-    <div><b>3万客户数：</b>拍档销售「本季度3万客户数计数」，与本月同期间；无目标，故只给数值与六人内部占比。</div>
+    <div><b>3万客户数：</b>完成 = 平台「FY27活跃客户 ▸ 销售数据」的<b>本季度3w客户数计数</b>；目标 = 同一行的<b>同比季度3w客户数计数</b>（去年同期同季度），因此完成率 100% 代表追平去年。</div>
     <div><b>进度：</b>竖线 = 时间进度（本月 ${m.month_time}% · 本季 ${m.quarter_time}%），完成率低于时间进度以琥珀/红色提示。更新 ${m.update_time} · 源 data_cur.json</div>`;
 })();
 </script>
