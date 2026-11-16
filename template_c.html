@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>大屏C · 六人作战看板</title>
+<style>
+  :root{
+    --bg0:#050912; --bg1:#0a1424; --bg2:#0e1c30;
+    --line:rgba(120,190,255,.14); --line2:rgba(120,190,255,.28);
+    --txt:#e8f2ff; --dim:#8ba3c2; --dim2:#5f7a99;
+    --cyan:#3ee6ff; --mint:#43e6a8; --gold:#ffc45c; --red:#ff6b7a; --violet:#9b8cff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    min-height:100dvh; overflow-x:hidden; color:var(--txt); font-variant-numeric:tabular-nums;
+    font-family:"HarmonyOS Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    background:
+      radial-gradient(1200px 600px at 12% -10%, rgba(62,230,255,.10), transparent 60%),
+      radial-gradient(900px 500px at 92% 0%, rgba(155,140,255,.10), transparent 55%),
+      linear-gradient(180deg,var(--bg0),var(--bg1) 45%,var(--bg0));
+    background-attachment:fixed;
+  }
+  body::before{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background-image:linear-gradient(rgba(120,190,255,.045) 1px,transparent 1px),
+                     linear-gradient(90deg,rgba(120,190,255,.045) 1px,transparent 1px);
+    background-size:56px 56px;
+    mask-image:radial-gradient(120% 90% at 50% 0%,#000 30%,transparent 85%);
+  }
+  .wrap{position:relative; z-index:1; max-width:1680px; margin:0 auto; padding:22px clamp(14px,2.2vw,34px) 40px; overflow-x:hidden}
+
+  /* ── 页头 ── */
+  header{display:flex; flex-wrap:wrap; align-items:flex-end; gap:14px 26px; padding-bottom:14px; border-bottom:1px solid var(--line)}
+  .brand{display:flex; align-items:center; gap:14px}
+  .logo{
+    width:42px; height:42px; border-radius:12px; flex:0 0 auto;
+    background:linear-gradient(145deg,rgba(62,230,255,.22),rgba(155,140,255,.18));
+    border:1px solid rgba(62,230,255,.45);
+    box-shadow:0 0 22px rgba(62,230,255,.22) inset, 0 0 18px rgba(62,230,255,.16);
+    display:grid; place-items:center; font-weight:800; color:var(--cyan); letter-spacing:.5px;
+  }
+  h1{margin:0; font-size:clamp(18px,1.9vw,26px); letter-spacing:.5px}
+  .sub{margin-top:4px; font-size:12.5px; color:var(--dim); letter-spacing:.3px}
+  .sub b{color:var(--cyan); font-weight:600}
+  .meta{margin-left:auto; display:flex; flex-wrap:wrap; gap:8px; min-width:0}
+  .pill{
+    font-size:12px; color:var(--dim); padding:6px 11px; border-radius:999px;
+    border:1px solid var(--line); background:rgba(120,190,255,.05); white-space:nowrap;
+    max-width:100%; min-width:0; overflow:hidden; text-overflow:ellipsis;
+  }
+  .pill b{color:var(--txt); font-weight:600}
+
+  /* ── 汇总条 ── */
+  .strip{
+    display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:12px; margin:18px 0 20px;
+  }
+  .sc{
+    position:relative; min-width:0; padding:13px 15px; border-radius:14px; overflow:hidden;
+    border:1px solid var(--line); background:linear-gradient(160deg,rgba(20,38,60,.86),rgba(10,20,34,.72));
+  }
+  .sc::after{content:""; position:absolute; left:0; top:0; width:3px; height:100%;
+    background:linear-gradient(180deg,var(--cyan),transparent)}
+  .sc .k{font-size:12px; color:var(--dim); letter-spacing:.4px}
+  .sc .v{margin-top:6px; font-size:clamp(19px,2vw,26px); font-weight:700; letter-spacing:.3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .sc .v small{font-size:12px; color:var(--dim); font-weight:500; margin-left:4px}
+  .sc .v small.p2{color:var(--cyan); margin-left:10px; padding-left:10px; border-left:1px solid var(--line2)}
+
+  /* ── 人员卡 ── */
+  .grid{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px}
+  @media (max-width:1180px){ .grid{grid-template-columns:repeat(2,minmax(0,1fr))} .strip{grid-template-columns:repeat(3,minmax(0,1fr))} }
+  @media (max-width:720px){
+    .grid{grid-template-columns:1fr}
+    .strip{grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px}
+    header{gap:10px 14px}
+    .meta{margin-left:0; width:100%}
+    .m{grid-template-columns:64px minmax(0,1fr) 54px; gap:7px 8px}
+    .m .val{font-size:14px}
+    .m .val small{font-size:11px}
+    .sc .v{font-size:20px}
+  }
+  @media (max-width:430px){
+    .strip{grid-template-columns:1fr}
+    .week .wv{font-size:17px}
+  }
+
+  .card{
+    position:relative; display:flex; flex-direction:column; gap:11px;
+    padding:15px 16px 16px; border-radius:16px; overflow:hidden;
+    border:1px solid var(--line);
+    background:
+      radial-gradient(420px 180px at 100% 0%, rgba(62,230,255,.08), transparent 70%),
+      linear-gradient(165deg,rgba(18,34,54,.92),rgba(9,18,31,.86));
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+  }
+  .card::before{
+    content:""; position:absolute; inset:0 0 auto 0; height:2px;
+    background:linear-gradient(90deg,transparent,var(--cyan),transparent); opacity:.55;
+  }
+  .c-head{display:flex; align-items:center; gap:10px}
+  .idx{
+    font-size:11.5px; color:var(--cyan); border:1px solid rgba(62,230,255,.4);
+    border-radius:7px; padding:2px 7px; background:rgba(62,230,255,.08); letter-spacing:1px;
+  }
+  .c-head h2{margin:0; font-size:19px; letter-spacing:.6px}
+  .c-head .tag{
+    margin-left:auto; font-size:11.5px; color:var(--dim); border:1px solid var(--line);
+    border-radius:999px; padding:3px 9px; max-width:52%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  }
+
+  .metrics{display:flex; flex-direction:column; gap:9px}
+  .m{display:grid; grid-template-columns:76px minmax(0,1fr) 62px; gap:8px 10px; align-items:center}
+  .m .lb{font-size:12.5px; color:var(--dim); letter-spacing:.3px}
+  .m .val{font-size:15px; font-weight:700; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .m .val small{font-size:11.5px; color:var(--dim2); font-weight:500}
+  .m .pct{text-align:right; font-size:13px; font-weight:700}
+  .bar{position:relative; grid-column:2 / 4; height:7px; border-radius:99px; background:rgba(120,190,255,.12); overflow:hidden}
+  .bar i{position:absolute; left:0; top:0; height:100%; border-radius:99px;
+    background:linear-gradient(90deg,rgba(62,230,255,.85),var(--cyan)); box-shadow:0 0 12px rgba(62,230,255,.5)}
+  .bar i.gold{background:linear-gradient(90deg,rgba(255,196,92,.85),var(--gold)); box-shadow:0 0 12px rgba(255,196,92,.45)}
+  .bar i.red{background:linear-gradient(90deg,rgba(255,107,122,.85),var(--red)); box-shadow:0 0 12px rgba(255,107,122,.4)}
+  .bar i.mint{background:linear-gradient(90deg,rgba(67,230,168,.85),var(--mint)); box-shadow:0 0 12px rgba(67,230,168,.45)}
+  .bar u{position:absolute; top:-3px; width:2px; height:13px; background:var(--gold); opacity:.9; text-decoration:none}
+  .m .note{grid-column:2 / 4; font-size:11px; color:var(--dim2)}
+
+  .week{
+    margin-top:2px; display:flex; flex-wrap:wrap; align-items:center; gap:6px 10px; padding-top:11px;
+    border-top:1px dashed var(--line2);
+  }
+  .week .wk{font-size:12.5px; color:var(--dim)}
+  .week .wv{margin-left:auto; font-size:19px; font-weight:800; letter-spacing:.4px}
+  .week .wv.up{color:var(--mint)} .week .wv.down{color:var(--red)} .week .wv.na{color:var(--dim2); font-size:15px}
+  .week .ws{font-size:11px; color:var(--dim2); white-space:nowrap; margin-left:auto}
+  .up{color:var(--mint)} .down{color:var(--red)} .na{color:var(--dim2)}
+
+  footer{margin-top:22px; padding-top:14px; border-top:1px solid var(--line); font-size:11.5px; color:var(--dim2); line-height:1.75}
+  footer b{color:var(--dim)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <div class="logo">C</div>
+      <div>
+        <h1>六人作战看板</h1>
+        <div class="sub">实收 <b>月 / 季</b> · 优爆品 <b>目标 / 完成 / 上周新增</b> · <b>3万客户数</b></div>
+      </div>
+    </div>
+    <div class="meta" id="meta"></div>
+  </header>
+
+  <section class="strip" id="strip"></section>
+  <main class="grid" id="grid"></main>
+  <footer id="foot"></footer>
+</div>
+
+<script>
+const DATA = __DATA__;
+
+const N = (v, d) => (v === null || v === undefined || v === "" || isNaN(v))
+  ? "--" : Number(v).toLocaleString("en-US", { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });
+const PCT = (v) => (v === null || v === undefined || isNaN(v)) ? "--" : Number(v).toFixed(2) + "%";
+const WAN = (v) => (v === null || v === undefined || isNaN(v)) ? "--"
+  : (Number(v) / 10000).toLocaleString("en-US", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+const SIGN = (v) => (v === null || v === undefined) ? "--" : (v > 0 ? "+" : v < 0 ? "-" : "") + N(Math.abs(v));
+const CLS = (v) => (v === null || v === undefined) ? "na" : v > 0 ? "up" : v < 0 ? "down" : "na";
+function bar(pct, tone) {
+  const w = Math.max(0, Math.min(100, Number(pct) || 0));
+  return `<div class="bar"><i class="${tone || ""}" style="width:${w}%"></i></div>`;
+}
+function barT(pct, timePct, tone) {
+  const w = Math.max(0, Math.min(100, Number(pct) || 0));
+  const t = (timePct === null || timePct === undefined) ? null : Math.max(0, Math.min(100, timePct));
+  return `<div class="bar"><i class="${tone || ""}" style="width:${w}%"></i>`
+    + (t === null ? "" : `<u style="left:${t}%"></u>`) + `</div>`;
+}
+
+/* ── 页头 ── */
+(function head() {
+  const m = DATA.meta;
+  document.getElementById("meta").innerHTML = [
+    `月份 <b>${m.month}</b> · 季度 <b>${m.quarter}</b>`,
+    `优爆品数据日 <b>${m.goods_ds}</b>`,
+    `上周增量 <b>${m.week_end} − ${m.week_base}</b>`,
+    `更新 <b>${m.update_time}</b>`,
+  ].map((x) => `<span class="pill">${x}</span>`).join("");
+})();
+
+/* ── 汇总条 ── */
+(function strip() {
+  const s = DATA.summary;
+  const items = [
+    { k: "六人合计 · 当月实收", v: WAN(s.month_val), u: "万", p: PCT(s.month_pct) },
+    { k: "六人合计 · 当季实收", v: WAN(s.quarter_val), u: "万", p: PCT(s.quarter_pct) },
+    { k: "六人合计 · 优爆品", v: N(s.hit, 0), u: "个", p: PCT(s.hit_pct) },
+    { k: "六人合计 · 3万客户", v: N(s.active, 0), u: "家", p: "" },
+    { k: "六人合计 · 上周优爆品增量", v: SIGN(s.week_add), u: "", p: "" },
+  ];
+  document.getElementById("strip").innerHTML = items.map((it) => `
+    <div class="sc"><div class="k">${it.k}</div>
+      <div class="v">${it.v}${it.u ? `<small>${it.u}</small>` : ""}${it.p ? `<small class="p2">${it.p}</small>` : ""}</div>
+    </div>`).join("");
+})();
+
+/* ── 人员卡 ── */
+(function cards() {
+  const t = DATA.meta;
+  const maxActive = Math.max(1, ...DATA.persons.map((p) => p.active || 0));
+  document.getElementById("grid").innerHTML = DATA.persons.map((p, i) => {
+    const mPct = p.month_pct, qPct = p.quarter_pct, hPct = p.hit_pct;
+    const toneM = (mPct !== null && mPct >= t.month_time) ? "mint" : (mPct !== null && mPct < t.month_time * 0.8 ? "red" : "gold");
+    const toneQ = (qPct !== null && qPct >= t.quarter_time) ? "mint" : (qPct !== null && qPct < t.quarter_time * 0.8 ? "red" : "gold");
+    const toneH = (hPct !== null && hPct >= (t.goods_time || 0)) ? "mint" : "gold";
+    return `<article class="card">
+      <div class="c-head">
+        <span class="idx">${String(i + 1).padStart(2, "0")}</span>
+        <h2>${p.name}</h2>
+        <span class="tag">${p.role || "销售"}</span>
+      </div>
+      <div class="metrics">
+        <div class="m">
+          <div class="lb">当月实收</div>
+          <div class="val" title="${N(p.month_val, 2)} USD">${WAN(p.month_val)}<small> 万 / ${WAN(p.month_target)} 万</small></div>
+          <div class="pct ${CLS(mPct - (t.month_time || 0))}">${PCT(mPct)}</div>
+          ${barT(mPct, t.month_time, toneM)}
+        </div>
+        <div class="m">
+          <div class="lb">当季实收</div>
+          <div class="val" title="${N(p.quarter_val, 2)} USD">${WAN(p.quarter_val)}<small> 万 / ${WAN(p.quarter_target)} 万</small></div>
+          <div class="pct ${CLS(qPct - (t.quarter_time || 0))}">${PCT(qPct)}</div>
+          ${barT(qPct, t.quarter_time, toneQ)}
+        </div>
+        <div class="m">
+          <div class="lb">优爆品</div>
+          <div class="val">${N(p.hit, 0)}<small> 个 / ${N(p.hit_target, 0)} 个</small></div>
+          <div class="pct ${hPct !== null && hPct >= (t.goods_time || 0) ? "up" : "na"}">${PCT(hPct)}</div>
+          ${bar(hPct, toneH)}
+        </div>
+        <div class="m">
+          <div class="lb">3万客户数</div>
+          <div class="val">${N(p.active, 0)}<small> 家</small></div>
+          <div class="pct na">${PCT(p.active_share)}</div>
+          ${bar(p.active_share, "mint")}
+        </div>
+      </div>
+      <div class="week">
+        <span class="wk">上周优爆品增量</span>
+        <span class="wv ${CLS(p.week_add)}">${SIGN(p.week_add)}</span>
+        <span class="ws">${t.week_end} − ${t.week_base}</span>
+      </div>
+    </article>`;
+  }).join("");
+})();
+
+/* ── 页脚 ── */
+(function foot() {
+  const m = DATA.meta;
+  document.getElementById("foot").innerHTML = `
+    <div><b>口径：</b>实收 = 平台「业务目标 ▸ 信保」逐人月度/季度信保实收（USD，原文未摊平）；目标取当期激励看板（FY27-11），未下发则显示 --，不拿上月值兜底。</div>
+    <div><b>优爆品：</b>完成 = 优品3.0 拍档销售表当前优爆品数（数据日 ${m.goods_ds}）；目标 = 当季累计目标。<b>上周增量</b> = ${m.week_end} 的优爆品数 − ${m.week_base} 的优爆品数，即上周一至周五净增，缺任一端显示 --。</div>
+    <div><b>3万客户数：</b>拍档销售「本季度3万客户数计数」，与本月同期间；无目标，故只给数值与六人内部占比。</div>
+    <div><b>进度：</b>竖线 = 时间进度（本月 ${m.month_time}% · 本季 ${m.quarter_time}%），完成率低于时间进度以琥珀/红色提示。更新 ${m.update_time} · 源 data_cur.json</div>`;
+})();
+</script>
+</body>
+</html>
