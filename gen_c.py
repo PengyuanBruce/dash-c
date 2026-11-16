@@ -56,7 +56,8 @@ def build(src):
             rows.append({"name": nm, "role": "", "month_val": None, "month_target": None,
                          "month_pct": None, "quarter_val": None, "quarter_target": None,
                          "quarter_pct": None, "hit": None, "hit_target": None, "hit_pct": None,
-                         "active": None, "week_add": _num(g.get("week_add"))})
+                         "active": None, "active_target": None, "active_pct": None,
+                         "week_add": _num(g.get("week_add"))})
             continue
         hit = _num(p.get("hit_products"))
         hit_t = _num(p.get("hit_target"))
@@ -72,12 +73,15 @@ def build(src):
             "hit": hit,
             "hit_target": hit_t,
             "hit_pct": _num(p.get("hit_pct")) if p.get("hit_pct") is not None else _pct(hit, hit_t),
+            # 3万客户数：完成 = 本季度3w客户数计数；目标 = 同比季度3w客户数计数（去年同期）
             "active": _num(p.get("active_clients")),
+            "active_target": _num(p.get("active_clients_yoy")),
             "week_add": _num(g.get("week_add")),
         })
 
     tot_active = sum(r["active"] or 0 for r in rows) or None
     for r in rows:
+        r["active_pct"] = _pct(r["active"], r["active_target"])
         r["active_share"] = (r["active"] / tot_active * 100) if (r["active"] is not None and tot_active) else None
 
     def _sum(k):
@@ -110,7 +114,9 @@ def build(src):
             "month_val": s_month, "month_pct": _pct(s_month, s_month_t),
             "quarter_val": s_q, "quarter_pct": _pct(s_q, s_q_t),
             "hit": s_hit, "hit_pct": _pct(s_hit, s_hit_t),
-            "active": tot_active, "week_add": _sum("week_add"),
+            "active": tot_active, "active_target": _sum("active_target"),
+            "active_pct": _pct(tot_active, _sum("active_target")),
+            "week_add": _sum("week_add"),
         },
         "persons": rows,
     }
@@ -149,9 +155,11 @@ def main():
           % (round(s["month_val"] or 0, 2), round(s["quarter_val"] or 0, 2),
              s["hit"], s["active"], s["week_add"]))
     for p in data["persons"]:
-        print("  %-5s 月 %8.2f%% 季 %8.2f%% 优 %6.2f%% 3w %-4s 周增 %s"
-              % (p["name"], p["month_pct"] or 0, p["quarter_pct"] or 0,
-                 p["hit_pct"] or 0, p["active"], p["week_add"]))
+        print("  %-5s 月 %7.2f%% 季 %7.2f%% 优 %6.2f%% 3w %s/%s %s 周增 %s"
+              % (p["name"], p["month_pct"] or 0, p["quarter_pct"] or 0, p["hit_pct"] or 0,
+                 p["active"], p["active_target"],
+                 ("%.1f%%" % p["active_pct"]) if p["active_pct"] is not None else "--",
+                 p["week_add"]))
     print("已生成 %s" % OUT_HTML)
 
 
