@@ -10,6 +10,7 @@
     python gen_c.py --src <path>    # 指定别的 data_cur.json
 """
 import argparse
+import base64
 import io
 import json
 import os
@@ -19,6 +20,7 @@ DEFAULT_SRC = r"D:\AWB\公司数据管理大屏Agent\project\build\data_cur.json
 NAMES = ["汤子豪", "漆螯童", "李怡萍", "邓晓东", "牛群", "程碧瑶"]
 
 TEMPLATE = os.path.join(BASE, "template_c.html")
+LOGO = os.path.join(BASE, "logo-256.png")
 OUT_HTML = os.path.join(BASE, "index.html")
 OUT_DATA = os.path.join(BASE, "c_data.json")
 
@@ -119,6 +121,12 @@ def render(data):
     tpl = io.open(TEMPLATE, encoding="utf-8").read()
     payload = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
     html = tpl.replace("__DATA__", payload)
+    # 队徽内联成 data URI：页面保持单文件可转发，不依赖额外请求
+    if os.path.exists(LOGO):
+        b64 = base64.b64encode(open(LOGO, "rb").read()).decode("ascii")
+        html = html.replace("__LOGO__", "data:image/png;base64," + b64)
+    else:
+        html = html.replace("__LOGO__", "")
     io.open(OUT_HTML, "w", encoding="utf-8").write(html)
     io.open(OUT_DATA, "w", encoding="utf-8").write(json.dumps(data, ensure_ascii=False, indent=1))
 
