@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>大屏C · 六人作战看板</title>
+<title>野狼队业绩看板</title>
+<link rel="icon" id="fav" href="data:,">
 <style>
   :root{
     --bg0:#050912; --bg1:#0a1424; --bg2:#0e1c30;
@@ -35,12 +36,11 @@
   header{display:flex; flex-wrap:wrap; align-items:flex-end; gap:14px 26px; padding-bottom:14px; border-bottom:1px solid var(--line)}
   .brand{display:flex; align-items:center; gap:14px}
   .logo{
-    width:42px; height:42px; border-radius:12px; flex:0 0 auto;
-    background:linear-gradient(145deg,rgba(62,230,255,.22),rgba(155,140,255,.18));
-    border:1px solid rgba(62,230,255,.45);
-    box-shadow:0 0 22px rgba(62,230,255,.22) inset, 0 0 18px rgba(62,230,255,.16);
-    display:grid; place-items:center; font-weight:800; color:var(--cyan); letter-spacing:.5px;
+    width:46px; height:46px; border-radius:50%; flex:0 0 auto; object-fit:cover;
+    border:1px solid rgba(62,230,255,.55); background:#0a1424;
+    box-shadow:0 0 18px rgba(62,230,255,.28), 0 0 0 3px rgba(62,230,255,.06);
   }
+  .brand .en{display:block; margin-top:2px; font-size:10.5px; letter-spacing:.34em; color:rgba(62,230,255,.72); text-transform:uppercase}
   h1{margin:0; font-size:clamp(18px,1.9vw,26px); letter-spacing:.5px}
   .sub{margin-top:4px; font-size:12.5px; color:var(--dim); letter-spacing:.3px}
   .sub b{color:var(--cyan); font-weight:600}
@@ -142,9 +142,10 @@
 <div class="wrap">
   <header>
     <div class="brand">
-      <div class="logo">C</div>
+      <img class="logo" alt="野狼队" src="__LOGO__">
       <div>
-        <h1>六人作战看板</h1>
+        <h1>野狼队业绩看板</h1>
+        <span class="en">Wolf Pack</span>
         <div class="sub">实收 <b>月 / 季</b> · 优爆品 <b>目标 / 完成 / 上周新增</b> · <b>3万客户数</b></div>
       </div>
     </div>
@@ -253,6 +254,9 @@ function barT(pct, timePct, tone) {
     </article>`;
   }).join("");
 })();
+
+/* favicon 复用页头同一份内联 logo，避免 base64 内联两遍 */
+(function fav(){ const l=document.querySelector(".logo"), f=document.getElementById("fav"); if(l&&f) f.href=l.src; })();
 
 /* ── 页脚 ── */
 (function foot() {
