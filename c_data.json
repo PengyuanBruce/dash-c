@@ -2,7 +2,7 @@
  "meta": {
   "data_ds": "2026-11-26",
   "goods_ds": "2026-11-24",
-  "update_time": "2026-11-26 19:06",
+  "update_time": "2026-11-26 20:12",
   "month": "2026-11",
   "quarter": "FY27Q3",
   "month_time": 86.7,
@@ -19,9 +19,9 @@
   "quarter_pct": 74.22162886600361,
   "hit": 27917.0,
   "hit_pct": 73.15200586955952,
-  "active": 132.0,
-  "active_target": 212.0,
-  "active_pct": 62.264150943396224,
+  "active": 158.0,
+  "active_target": 209.0,
+  "active_pct": 75.5980861244019,
   "week_add": -42.0
  },
  "persons": [
@@ -37,11 +37,11 @@
    "hit": 4653.0,
    "hit_target": 6975.0,
    "hit_pct": 66.7,
-   "active": 50.0,
+   "active": 52.0,
    "active_target": 52.0,
    "week_add": -54.0,
-   "active_pct": 96.15384615384616,
-   "active_share": 37.878787878787875
+   "active_pct": 100.0,
+   "active_share": 32.91139240506329
   },
   {
    "name": "漆螯童",
@@ -55,11 +55,11 @@
    "hit": 8515.0,
    "hit_target": 9989.0,
    "hit_pct": 85.2,
-   "active": 49.0,
+   "active": 55.0,
    "active_target": 79.0,
    "week_add": 119.0,
-   "active_pct": 62.0253164556962,
-   "active_share": 37.121212121212125
+   "active_pct": 69.62025316455697,
+   "active_share": 34.810126582278485
   },
   {
    "name": "李怡萍",
@@ -73,11 +73,11 @@
    "hit": 5711.0,
    "hit_target": 6993.0,
    "hit_pct": 81.7,
-   "active": 17.0,
+   "active": 27.0,
    "active_target": 35.0,
    "week_add": -81.0,
-   "active_pct": 48.57142857142857,
-   "active_share": 12.878787878787879
+   "active_pct": 77.14285714285715,
+   "active_share": 17.088607594936708
   },
   {
    "name": "邓晓东",
@@ -91,11 +91,11 @@
    "hit": 5527.0,
    "hit_target": 7306.0,
    "hit_pct": 75.7,
-   "active": 15.0,
+   "active": 22.0,
    "active_target": 26.0,
    "week_add": -26.0,
-   "active_pct": 57.692307692307686,
-   "active_share": 11.363636363636363
+   "active_pct": 84.61538461538461,
+   "active_share": 13.924050632911392
   },
   {
    "name": "牛群",
@@ -127,11 +127,11 @@
    "hit": 2195.0,
    "hit_target": 4408.0,
    "hit_pct": 49.8,
-   "active": 1.0,
-   "active_target": 17.0,
+   "active": 2.0,
+   "active_target": 14.0,
    "week_add": -13.0,
-   "active_pct": 5.88235294117647,
-   "active_share": 0.7575757575757576
+   "active_pct": 14.285714285714285,
+   "active_share": 1.2658227848101267
   }
  ]
 }
