@@ -240,7 +240,7 @@ function barT(pct, timePct, tone) {
           ${bar(hPct, toneH)}
         </div>
         <div class="m">
-          <div class="lb">本季度3万客户数</div>
+          <div class="lb">本季度3万客户</div>
           <div class="val">${N(p.active, 0)}<small> 家 / 去年同期 ${N(p.active_target, 0)} 家</small></div>
           <div class="pct ${p.active_pct !== null && p.active_pct >= 100 ? "up" : (p.active_pct !== null && p.active_pct >= 60 ? "" : "down")}">${PCT(p.active_pct)}</div>
           ${bar(p.active_pct, p.active_pct !== null && p.active_pct >= 100 ? "mint" : (p.active_pct !== null && p.active_pct >= 60 ? "gold" : "red"))}
