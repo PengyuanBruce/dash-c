@@ -146,7 +146,7 @@
       <div>
         <h1>野狼队业绩看板</h1>
         <span class="en">Wolf Pack</span>
-        <div class="sub">实收 <b>月 / 季</b> · 优爆品 <b>目标 / 完成 / 上周新增</b> · <b>3万客户数</b></div>
+        <div class="sub">实收 <b>月 / 季</b> · 优爆品 <b>目标 / 完成 / 上周新增</b> · <b>本季度3万客户数</b></div>
       </div>
     </div>
     <div class="meta" id="meta"></div>
@@ -196,7 +196,7 @@ function barT(pct, timePct, tone) {
     { k: "六人合计 · 当月实收", v: WAN(s.month_val), u: "万", p: PCT(s.month_pct) },
     { k: "六人合计 · 当季实收", v: WAN(s.quarter_val), u: "万", p: PCT(s.quarter_pct) },
     { k: "六人合计 · 优爆品", v: N(s.hit, 0), u: "个", p: PCT(s.hit_pct) },
-    { k: "六人合计 · 3万客户", v: N(s.active, 0), u: "家", p: (s.active_target ? PCT(s.active_pct) + "（同比 " + N(s.active_target, 0) + "）" : "") },
+    { k: "六人合计 · 本季度3万客户", v: N(s.active, 0), u: "家", p: (s.active_target ? PCT(s.active_pct) + "（去年同季 " + N(s.active_target, 0) + "）" : "") },
     { k: "六人合计 · 上周优爆品增量", v: SIGN(s.week_add), u: "", p: "" },
   ];
   document.getElementById("strip").innerHTML = items.map((it) => `
@@ -240,8 +240,8 @@ function barT(pct, timePct, tone) {
           ${bar(hPct, toneH)}
         </div>
         <div class="m">
-          <div class="lb">3万客户数</div>
-          <div class="val">${N(p.active, 0)}<small> 家 / 同比 ${N(p.active_target, 0)} 家</small></div>
+          <div class="lb">本季度3万客户数</div>
+          <div class="val">${N(p.active, 0)}<small> 家 / 去年同期 ${N(p.active_target, 0)} 家</small></div>
           <div class="pct ${p.active_pct !== null && p.active_pct >= 100 ? "up" : (p.active_pct !== null && p.active_pct >= 60 ? "" : "down")}">${PCT(p.active_pct)}</div>
           ${bar(p.active_pct, p.active_pct !== null && p.active_pct >= 100 ? "mint" : (p.active_pct !== null && p.active_pct >= 60 ? "gold" : "red"))}
         </div>
